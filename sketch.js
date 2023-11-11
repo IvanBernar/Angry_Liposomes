@@ -10,9 +10,9 @@ let simulationSpeed = 0.8;  // Simulation speed (1 is normal)
 let interactRadius = 50;  // Radius within which mouse interaction is allowed
 
 let boxes = []; 
-let pumpkinReleased = false;  // Flag to track if the pumpkin has been released
-let pumpkinHasCollided = false;  // Flag to track if the pumpkin has collided with any body
-let pumpkinBeingDragged = false;  // Flag to track if the pumpkin is being dragged
+let liposomeReleased = false;  // Flag to track if the liposome has been released
+let liposomeHasCollided = false;  // Flag to track if the liposome has collided with any body
+let liposomeBeingDragged = false;  // Flag to track if the liposome is being dragged
 let gameStarted = false;  // Flag to track if the game has started
 
 let gameDuration = 60000; // 1 minute in milliseconds
@@ -22,11 +22,11 @@ let gameOver = false;
 let allMonstersExploded = false;
 
 function preload() {
-  titleScreen = loadImage('angry_pumpkins.jpg');
+  titleScreen = loadImage('angry_liposomes.jpg');
   backgroundImg = loadImage('background.jpg');
   winningImg = loadImage('winning_image.jpg');
   losingImg = loadImage('losing_image.jpg');
-  pumpkinImg = loadImage('angry2.png');
+  liposomeImg = loadImage('angry2.png');
   imgBox1 = loadImage('box1.png');
   imgBox2 = loadImage('box2.png');
   imgStuff1 = loadImage('stuff1.png');
@@ -47,12 +47,12 @@ function setup() {
   });
   World.add(engine.world, ground);
 
-  pumpkin = Bodies.circle(240, height - 210, 20, {
+  liposome = Bodies.circle(240, height - 210, 20, {
     isStatic: true
   });
-  World.add(engine.world, pumpkin);
+  World.add(engine.world, liposome);
 
-  slingshot = new SlingShot(240, height - 210, pumpkin);
+  slingshot = new SlingShot(240, height - 210, liposome);
   Events.on(engine, 'collisionStart', collision);
 
   torch1 = new Torch(330, 620);
@@ -62,24 +62,24 @@ function setup() {
 
   // Init objects
 
-  boxes.push(new GameObject(550, 200, 50, 50, monsterImg, 1.5, true, true)); // First Corona Virus
+  boxes.push(new GameObject(550, 200, 50, 50, monsterImg, 1.5, true, true)); // First Virus
   boxes.push(new GameObject(550, 250, 50, 91, imgFlask1, 1.05)); // First Flask
   boxes.push(new GameObject(500, 450, 200, 253, imgStove1, 1.05)); // First Stove
 
-  boxes.push(new GameObject(700, 550, 50, 50, monsterImg, 1.5, true, true)); // Second Corona Virus
+  boxes.push(new GameObject(700, 550, 50, 50, monsterImg, 1.5, true, true)); // Second Virus
   boxes.push(new GameObject(700, 600, 50, 91, imgFlask1, 1.05)); // Second Flask
 
-  boxes.push(new GameObject(950, 120, 50, 50, monsterImg, 1.5, true, true)); // First Corona Virus
+  boxes.push(new GameObject(950, 120, 50, 50, monsterImg, 1.5, true, true)); // Third Virus
   boxes.push(new GameObject(900, 150, 219, 100, imgStuff1, 1.05)); // First Stuff
   boxes.push(new GameObject(920, 350, 150, 150, imgBox1, 1.05)); // First Box 
   boxes.push(new GameObject(900, 500, 150, 150, imgBox1, 1.05)); // Second Box
   
-  boxes.push(new GameObject(1150, 450, 50, 50, monsterImg, 1.5, true, true)); // First Corona Virus
-  boxes.push(new GameObject(1150, 500, 150, 150, imgBox2, 1.05)); // First Box
+  boxes.push(new GameObject(1150, 450, 50, 50, monsterImg, 1.5, true, true)); // Fourth Virus
+  boxes.push(new GameObject(1150, 500, 150, 150, imgBox2, 1.05)); // Third Box
 
     
   boxes.push(new GameObject(1350, 300, 50, 91, imgFlask1, 1.05)); // Third Flask
-  boxes.push(new GameObject(1450, 400, 50, 50, monsterImg, 1.5, true, true)); // Third Corona Virus
+  boxes.push(new GameObject(1450, 400, 50, 50, monsterImg, 1.5, true, true)); // Fifth Virus
   boxes.push(new GameObject(1380, 750, 150, 286, imgShelf1, 1.05)); // First Shelf
 
   startTime = millis(); // This captures the current time in milliseconds
@@ -159,51 +159,51 @@ class ExplosionParticle {
   }
 }
 
-function resetpumpkin() {
+function resetliposome() {
 
   // Portal effect
-  let disappearPortal = new PortalEffect(pumpkin.position.x, pumpkin.position.y);
+  let disappearPortal = new PortalEffect(liposome.position.x, liposome.position.y);
   explosionManager.explosions.push(disappearPortal);
 
-  // Delete pumpkin
-  World.remove(engine.world, pumpkin);
+  // Delete liposome
+  World.remove(engine.world, liposome);
 
-  // Create new pumpkin
-  pumpkin = Bodies.circle(240, height - 210, 20, {
+  // Create new liposome
+  liposome = Bodies.circle(240, height - 210, 20, {
     isStatic: true
   });
-  World.add(engine.world, pumpkin);
+  World.add(engine.world, liposome);
 
   // Portal effect
-  let appearPortal = new PortalEffect(pumpkin.position.x, pumpkin.position.y);
+  let appearPortal = new PortalEffect(liposome.position.x, liposome.position.y);
   explosionManager.explosions.push(appearPortal);
 
   // Reset Decelerate
-  slingshot = new SlingShot(240, height - 210, pumpkin);
+  slingshot = new SlingShot(240, height - 210, liposome);
 
   // Resetear states
-  pumpkinReleased = false;
-  pumpkinHasCollided = false;
-  pumpkinBeingDragged = false;
+  liposomeReleased = false;
+  liposomeHasCollided = false;
+  liposomeBeingDragged = false;
 }
 
 function mouseDragged() {
-  let d = dist(mouseX, mouseY, pumpkin.position.x, pumpkin.position.y);
-  if (!pumpkinReleased && d < interactRadius) {
-    pumpkinBeingDragged = true;
+  let d = dist(mouseX, mouseY, liposome.position.x, liposome.position.y);
+  if (!liposomeReleased && d < interactRadius) {
+    liposomeBeingDragged = true;
     let stretchDistance = dist(mouseX, mouseY, slingshot.origin.x, slingshot.origin.y);
     if (stretchDistance > maxStretch) {
       // Calculate angle between origin and mouse
       let angle = atan2(mouseY - slingshot.origin.y, mouseX - slingshot.origin.x);
-      // Calculate pumpkin position in the limit of the max distance
+      // Calculate liposome position in the limit of the max distance
       let newPosX = slingshot.origin.x + maxStretch * cos(angle);
       let newPosY = slingshot.origin.y + maxStretch * sin(angle);
-      Body.setPosition(pumpkin, {
+      Body.setPosition(liposome, {
         x: newPosX,
         y: newPosY
       });
     } else {
-      Body.setPosition(pumpkin, {
+      Body.setPosition(liposome, {
         x: mouseX,
         y: mouseY
       });
@@ -225,9 +225,9 @@ function mousePressed() {
 }
 
 function keyPressed() {
-  //reset pumpkin position
+  //reset liposome position
   if (key === ' ') {
-    resetpumpkin();
+    resetliposome();
   }
 
   // Clean all objects
@@ -240,13 +240,13 @@ function keyPressed() {
 }
 
 function mouseReleased() {
-  if (pumpkinBeingDragged) {
-    pumpkinBeingDragged = false; // Reset the flag
-    pumpkinReleased = true;
-    Body.setStatic(pumpkin, false);
-    let forceX = slingshot.origin.x - pumpkin.position.x;
-    let forceY = slingshot.origin.y - pumpkin.position.y;
-    Body.applyForce(pumpkin, pumpkin.position, {
+  if (liposomeBeingDragged) {
+    liposomeBeingDragged = false; // Reset the flag
+    liposomeReleased = true;
+    Body.setStatic(liposome, false);
+    let forceX = slingshot.origin.x - liposome.position.x;
+    let forceY = slingshot.origin.y - liposome.position.y;
+    Body.applyForce(liposome, liposome.position, {
       x: forceX * strength,
       y: forceY * strength
     });
@@ -266,8 +266,8 @@ function draw() {
     explosionManager.updateAndDisplay();
 
     // Check if the bird has stopped after being launched
-    if (pumpkinReleased && Math.abs(pumpkin.velocity.x) < 0.01 && Math.abs(pumpkin.velocity.y) < 0.01) {
-      resetpumpkin();
+    if (liposomeReleased && Math.abs(liposome.velocity.x) < 0.01 && Math.abs(liposome.velocity.y) < 0.01) {
+      resetliposome();
     }
 
     // Set the blending mode to ADD for a mix effect
@@ -283,22 +283,22 @@ function draw() {
     slingshot.display();
 
     let angle;
-    if (!pumpkinHasCollided) {
-      if (!pumpkinReleased) {
-        angle = atan2(slingshot.origin.y - pumpkin.position.y, slingshot.origin.x - pumpkin.position.x);
+    if (!liposomeHasCollided) {
+      if (!liposomeReleased) {
+        angle = atan2(slingshot.origin.y - liposome.position.y, slingshot.origin.x - liposome.position.x);
       } else {
-        let velocity = pumpkin.velocity;
+        let velocity = liposome.velocity;
         angle = atan2(velocity.y, velocity.x);
       }
     } else {
-      angle = pumpkin.angle; // Use pumpkin.angle after collision
+      angle = liposome.angle; // Use liposome.angle after collision
     }
 
     push();
-    translate(pumpkin.position.x, pumpkin.position.y);
+    translate(liposome.position.x, liposome.position.y);
     rotate(angle);
     imageMode(CENTER);
-    image(pumpkinImg, 0, 0, 60, 60);
+    image(liposomeImg, 0, 0, 60, 60);
     pop();
 
     for (let box of boxes) {
@@ -532,9 +532,9 @@ function collision(event) {
     propagateImpact(bodyA, impactMagnitude, impactThreshold + 1.5, bodyA.position);
     propagateImpact(bodyB, impactMagnitude, impactThreshold + 1.5, bodyB.position);
 
-    // Check for pumpkin collision with anything
-    if (bodyA === pumpkin || bodyB === pumpkin) {
-      pumpkinHasCollided = true; // Change pumpkinHasCollided to true on collision
+    // Check for liposome collision with anything
+    if (bodyA === liposome || bodyB === liposome) {
+      liposomeHasCollided = true; // Change liposomeHasCollided to true on collision
     }
   }
 }
@@ -602,10 +602,10 @@ class SlingShot {
   }
 
   display() {
-    if (!pumpkinReleased) {
+    if (!liposomeReleased) {
       stroke(255);
       strokeWeight(4);
-      line(this.origin.x, this.origin.y, pumpkin.position.x, pumpkin.position.y);
+      line(this.origin.x, this.origin.y, liposome.position.x, liposome.position.y);
     }
   }
 }
